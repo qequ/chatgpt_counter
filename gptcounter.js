@@ -1,6 +1,31 @@
 // Global variable to store the character limit
-let charLimit = 25000; // Default to GPT-4
-let isCounterVisible = true;
+let charLimit;
+let isCounterVisible;
+
+function updateSettings(mode) {
+  switch (mode) {
+    case 'gpt-3.5':
+      charLimit = 4000;
+      isCounterVisible = true;
+      break;
+    case 'gpt-4':
+      charLimit = 25000;
+      isCounterVisible = true;
+      break;
+    case 'hide':
+      isCounterVisible = false;
+      break;
+    default:
+      console.error('Unknown mode:', mode);
+  }
+}
+
+chrome.storage.local.get('mode', (result) => {
+  updateSettings(result.mode || 'gpt-4');
+  // Call countCharacters to update the counter
+  countCharacters();
+});
+
 
 /**
  * Counts characters in the chat box and updates the counter.
@@ -17,6 +42,32 @@ function countCharacters() {
   console.log('Character Count:', charCount);
 
   updateOrCreateCounter(charCount);
+}
+
+// Define getBrowser function at the top-level scope
+function getBrowser() {
+  if (typeof chrome !== 'undefined') {
+    return chrome;
+  } else if (typeof browser !== 'undefined') {
+    return browser;
+  } else {
+    console.error('This script is not running in a supported browser.');
+    return null;
+  }
+}
+
+// Define browserObject at the top-level scope
+const browserObject = getBrowser();
+
+// Now add your message listener
+
+if (browserObject) {
+  browserObject.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.action === "updateSettings") {
+      updateSettings(request.mode);
+      countCharacters();  // Update the counter
+    }
+  });
 }
 
 /**
@@ -39,11 +90,17 @@ function updateOrCreateCounter(charCount) {
   }
 
   counter.textContent = `${charCount}/${charLimit}`;
-
-
   // Update the counter visibility
   counter.style.display = isCounterVisible ? 'block' : 'none';
+
+  // Change color to red if limit reached or exceeded, otherwise set it to black
+  if (charCount >= charLimit) {
+    counter.style.color = 'red';
+  } else {
+    counter.style.color = 'black';
+  }
 }
+
 
 /**
  * Creates the character counter element.
@@ -86,52 +143,12 @@ function toggleCounterVisibility() {
   updateOrCreateCounter(document.getElementById('prompt-textarea').value.length);
 }
 
-/**
- * Creates the toggle button.
- */
-function createToggleButton() {
-  const button = document.createElement('button');
-  Object.assign(button, {
-    textContent: 'Toggle GPT Model',
-    onclick: toggleModel
-  });
-  Object.assign(button.style, {
-    position: 'fixed',
-    top: '10px',
-    right: '5px', // Adjusted from '10px' to '5px'
-    padding: '5px 10px',
-    fontSize: '12px'
-  });
-
-  document.body.appendChild(button);
-}
-
-
-// Function to create the show/hide counter button
-function createToggleCounterButton() {
-  const button = document.createElement('button');
-  Object.assign(button, {
-    textContent: 'Toggle Counter Visibility',
-    onclick: toggleCounterVisibility
-  });
-  Object.assign(button.style, {
-    position: 'fixed',
-    top: '40px',
-    right: '10px',
-    padding: '5px 10px',
-    fontSize: '12px'
-  });
-
-  document.body.appendChild(button);
-}
 
 /**
  * Initializes the extension.
  */
 function initExtension() {
   console.log('ChatGPT detected');
-  createToggleButton();
-  createToggleCounterButton();
   countCharacters();
 
   const chatBox = getChatBox();
