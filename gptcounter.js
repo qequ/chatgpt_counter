@@ -92,7 +92,15 @@ function updateOrCreateCounter(charCount) {
   counter.textContent = `${charCount}/${charLimit}`;
   // Update the counter visibility
   counter.style.display = isCounterVisible ? 'block' : 'none';
+
+  // Change color to red if limit reached or exceeded, otherwise set it to black
+  if (charCount >= charLimit) {
+    counter.style.color = 'red';
+  } else {
+    counter.style.color = 'black';
+  }
 }
+
 
 /**
  * Creates the character counter element.
