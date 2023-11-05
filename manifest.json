@@ -1,5 +1,4 @@
 {
-
   "description": "Add a counter to the chat GPT chat window",
   "manifest_version": 2,
   "name": "chatgpt-counter",
@@ -7,12 +6,25 @@
   "icons": {
     "48": "icons/counter.png"
   },
-
+  "browser_action": {
+    "default_icon": "icons/counter.png",
+    "default_popup": "options.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
+  "permissions": [
+    "storage"
+  ],
   "content_scripts": [
     {
-      "matches": ["*://*.chat.openai.com/*"],
-      "js": ["gptcounter.js"]
+      "matches": [
+        "*://*.chat.openai.com/*"
+      ],
+      "js": [
+        "gptcounter.js"
+      ]
     }
   ]
-
 }
