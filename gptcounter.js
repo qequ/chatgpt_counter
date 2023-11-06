@@ -79,6 +79,12 @@ function getChatBox() {
   return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
 
+function getResponseButton() {
+  const xpath = "//*[contains(text(),'Regenerate')]";
+  return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+}
+
+
 /**
  * Updates the character counter, or creates it if it doesn't exist.
  * @param {number} charCount - The current character count.
@@ -111,8 +117,9 @@ function createCounter() {
   counter.id = 'char-counter';
   Object.assign(counter.style, {
     position: 'absolute',
-    top: '0',
-    right: '50px',
+    top: '60px',
+    left: '95%',  // Set to 100% to position the counter to the right of the sibling element
+    marginLeft: '10px',  // Add some space between the sibling element and the counter
     padding: '5px',
     backgroundColor: '#f0f0f0',
     border: '1px solid #ccc',
@@ -121,9 +128,11 @@ function createCounter() {
     color: '#333'
   });
 
-  const chatBox = getChatBox();
-  if (chatBox) {
-    chatBox.parentNode.insertBefore(counter, chatBox.nextSibling);
+  const responseButton = getResponseButton();
+  if (responseButton) {
+    const parentElement = responseButton.parentNode;
+    parentElement.style.position = 'relative';  // Ensure the parent element has relative positioning
+    parentElement.insertBefore(counter, responseButton.nextSibling);
   }
 
   return counter;
