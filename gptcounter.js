@@ -84,7 +84,6 @@ function getResponseButton() {
   return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
 
-
 /**
  * Updates the character counter, or creates it if it doesn't exist.
  * @param {number} charCount - The current character count.
